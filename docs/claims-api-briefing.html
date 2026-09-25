@@ -1,0 +1,1074 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claims API Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root {
+    --paper: #F2F4F7;
+    --surface: #FFFFFF;
+    --ink: #111A24;
+    --ink-2: #3B4858;
+    --muted: #677587;
+    --rule: #D3DAE3;
+    --rule-strong: #AEB8C5;
+    --accent: #2447C9;
+    --accent-ink: #1B389F;
+    --accent-soft: #E3E9FB;
+    --ok: #1C7A4B;
+    --ok-soft: #DDF1E6;
+    --warn: #9A5B00;
+    --warn-soft: #FBEBD2;
+    --err: #B42318;
+    --err-soft: #FBE1DE;
+    --code-bg: #F7F9FC;
+    --code-kw: #2447C9;
+    --code-str: #1C7A4B;
+    --code-type: #8A3FB5;
+    --code-com: #7A8697;
+    --ann: #B42318;
+    --shadow: 0 1px 0 rgba(17, 26, 36, .04), 0 8px 24px -12px rgba(17, 26, 36, .18);
+    --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #0C1219;
+      --surface: #131B24;
+      --ink: #E4EBF3;
+      --ink-2: #B4C0CD;
+      --muted: #8594A6;
+      --rule: #243040;
+      --rule-strong: #3A4859;
+      --accent: #8AA5FF;
+      --accent-ink: #A9BDFF;
+      --accent-soft: #1A2650;
+      --ok: #52C48D;
+      --ok-soft: #12301F;
+      --warn: #E6A640;
+      --warn-soft: #3A2A10;
+      --err: #F2786D;
+      --err-soft: #3C1815;
+      --code-bg: #0F161E;
+      --code-kw: #8AA5FF;
+      --code-str: #6FD3A0;
+      --code-type: #D39BF2;
+      --code-com: #7D8C9E;
+      --ann: #F2786D;
+      --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #0C1219;
+    --surface: #131B24;
+    --ink: #E4EBF3;
+    --ink-2: #B4C0CD;
+    --muted: #8594A6;
+    --rule: #243040;
+    --rule-strong: #3A4859;
+    --accent: #8AA5FF;
+    --accent-ink: #A9BDFF;
+    --accent-soft: #1A2650;
+    --ok: #52C48D;
+    --ok-soft: #12301F;
+    --warn: #E6A640;
+    --warn-soft: #3A2A10;
+    --err: #F2786D;
+    --err-soft: #3C1815;
+    --code-bg: #0F161E;
+    --code-kw: #8AA5FF;
+    --code-str: #6FD3A0;
+    --code-type: #D39BF2;
+    --code-com: #7D8C9E;
+    --ann: #F2786D;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .6);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  table { font-size: inherit; }
+  a { color: var(--accent-ink); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+  code { font-family: var(--f-mono); font-size: .88em; background: var(--accent-soft); color: var(--ink); padding: .08em .35em; border-radius: 4px; }
+
+  /* ---------- shell ---------- */
+  .shell {
+    display: grid;
+    grid-template-columns: 208px minmax(0, 1fr);
+    gap: 56px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-inline: 32px;
+  }
+  .rail {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 28px);
+    align-self: start;
+    padding-block: 28px;
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+  }
+  .rail-title { color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-size: 11px; margin: 0 0 14px; }
+  .rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-left: 1px solid var(--rule); }
+  .rail a {
+    display: grid; grid-template-columns: 26px 1fr; gap: 4px;
+    padding: 5px 10px; margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--muted); text-decoration: none;
+  }
+  .rail a:hover { color: var(--ink); }
+  .rail a.active { color: var(--ink); border-left-color: var(--accent); }
+  .rail a .n { color: var(--rule-strong); font-variant-numeric: tabular-nums; }
+  .rail a.active .n { color: var(--accent); }
+  .rail-keys { margin-top: 18px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+  .rail-keys kbd { font-family: var(--f-mono); border: 1px solid var(--rule-strong); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--ink-2); }
+
+  main { min-width: 0; }
+
+  /* ---------- slides ---------- */
+  .slide { padding-block: 72px; border-top: 1px solid var(--rule); scroll-margin-top: 12px; }
+  .slide:first-child { border-top: 0; padding-top: 56px; }
+  .eyebrow {
+    display: flex; gap: 12px; align-items: baseline;
+    font-family: var(--f-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent-ink); margin: 0 0 14px;
+  }
+  .eyebrow .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+  h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+  h2 {
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 2.6rem);
+    line-height: 1.08;
+    font-weight: 760;
+    font-variation-settings: "wdth" 82;
+    letter-spacing: -.01em;
+    max-width: 30ch;
+  }
+  h3 {
+    font-size: 1.15rem; font-weight: 700; font-variation-settings: "wdth" 92;
+    letter-spacing: .005em; margin-bottom: 8px;
+  }
+  .lede { font-size: 1.125rem; color: var(--ink-2); max-width: 64ch; margin: 18px 0 0; }
+  .body { max-width: 66ch; color: var(--ink-2); }
+  .stack { display: grid; gap: 28px; margin-top: 36px; }
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  .cols-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 32px; }
+  .caption { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .mono { font-family: var(--f-mono); }
+
+  /* ---------- hero ---------- */
+  .hero-kicker { font-family: var(--f-mono); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .route {
+    font-family: var(--f-mono); font-weight: 500;
+    font-size: clamp(1.9rem, 1rem + 4.4vw, 4.4rem);
+    line-height: 1.05; letter-spacing: -.02em;
+    margin: 18px 0 0; overflow-wrap: anywhere;
+  }
+  .route .verb { color: var(--muted); font-weight: 400; }
+  .route .param { color: var(--accent); }
+  .route .caret { display: inline-block; width: .5em; height: .08em; background: var(--accent); vertical-align: -.02em; margin-left: .06em; animation: blink 1.2s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  h1 {
+    font-size: clamp(2rem, 1.2rem + 3vw, 3.5rem);
+    line-height: 1.02;
+    font-weight: 820;
+    font-variation-settings: "wdth" 72;
+    letter-spacing: -.015em;
+    margin-top: 28px;
+    max-width: 20ch;
+  }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 44px; border-top: 1px solid var(--ink); }
+  .stat { padding: 16px 20px 4px 0; }
+  .stat + .stat { padding-left: 20px; border-left: 1px solid var(--rule); }
+  .stat .v {
+    font-family: var(--f-display); font-weight: 780; font-variation-settings: "wdth" 70;
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.9rem); line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .stat .v small { font-size: .45em; font-weight: 600; color: var(--muted); margin-left: 4px; font-variation-settings: "wdth" 90; }
+  .stat .l { font-size: 13.5px; color: var(--ink-2); margin-top: 8px; }
+  .stat .l .mono { font-size: 12px; color: var(--muted); }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 32px; font-size: 13px; color: var(--muted); }
+  .hero-meta span strong { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- tables ---------- */
+  .tbl { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-family: var(--f-mono); font-weight: 500; font-size: 11px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    padding: 12px 14px; border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 14.5px; color: var(--ink-2); }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { color: var(--ink); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--f-mono); }
+  td .sub { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; line-height: 1;
+    padding: 5px 9px; border-radius: 999px; white-space: nowrap;
+    border: 1px solid var(--rule-strong); color: var(--ink-2); background: var(--surface);
+  }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+  .chip.ok { background: var(--ok-soft); border-color: transparent; color: var(--ink); }
+  .chip.ok::before { background: var(--ok); }
+  .chip.warn { background: var(--warn-soft); border-color: transparent; color: var(--ink); }
+  .chip.warn::before { background: var(--warn); }
+  .chip.err { background: var(--err-soft); border-color: transparent; color: var(--ink); }
+  .chip.err::before { background: var(--err); }
+  .chip.seam { background: var(--accent-soft); border-color: transparent; color: var(--ink); }
+  .chip.seam::before { background: var(--accent); border-radius: 2px; }
+  .chip.open::before { background: transparent; border: 1.5px solid var(--muted); width: 5px; height: 5px; }
+  .status { font-family: var(--f-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .status.s2 { color: var(--ok); }
+  .status.s4 { color: var(--warn); }
+  .status.s5 { color: var(--err); }
+
+  /* ---------- code ---------- */
+  .code { border: 1px solid var(--rule); border-radius: 10px; background: var(--code-bg); overflow: hidden; min-width: 0; }
+  .code-head {
+    display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    padding: 9px 14px; border-bottom: 1px solid var(--rule);
+    font-family: var(--f-mono); font-size: 12px; color: var(--muted); background: var(--surface);
+  }
+  .code-head .file { color: var(--ink-2); }
+  .code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: 13px; line-height: 1.6; color: var(--ink); tab-size: 2; }
+  .code .k { color: var(--code-kw); }
+  .code .s { color: var(--code-str); }
+  .code .t { color: var(--code-type); }
+  .code .c { color: var(--code-com); font-style: italic; }
+  .code .a { color: var(--ann); font-style: italic; }
+  .code .hl { display: inline-block; min-width: 100%; background: var(--accent-soft); margin-inline: -16px; padding-inline: 16px; }
+
+  /* ---------- figures ---------- */
+  .figure { border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); padding: 18px; overflow-x: auto; }
+  .figure svg { display: block; width: 100%; height: auto; min-width: 760px; }
+  svg .box { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.25; }
+  svg .box-port { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.75; }
+  svg .box-ghost { fill: none; stroke: var(--rule-strong); stroke-width: 1.25; stroke-dasharray: 5 4; }
+  svg .box-filter { fill: var(--code-bg); stroke: var(--ink-2); stroke-width: 1.25; }
+  svg .region { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 2 4; }
+  svg .tn { fill: var(--ink); font-family: var(--f-mono); font-size: 12.5px; font-weight: 500; }
+  svg .tg { fill: var(--muted); font-family: var(--f-mono); font-size: 12.5px; }
+  svg .ts { fill: var(--muted); font-family: var(--f-body); font-size: 11px; }
+  svg .tl { fill: var(--ink-2); font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  svg .ta { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 11px; }
+  svg .edge { stroke: var(--ink-2); stroke-width: 1.25; fill: none; }
+  svg .edge-ok { stroke: var(--ok); stroke-width: 1.5; fill: none; }
+  svg .edge-x { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; stroke-dasharray: 3 3; }
+  svg .edge-impl { stroke: var(--accent); stroke-width: 1.25; fill: none; }
+  svg .edge-ghost { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; stroke-dasharray: 5 4; }
+  svg .head { fill: var(--ink-2); }
+  svg .head-ok { fill: var(--ok); }
+  svg .head-x { fill: var(--rule-strong); }
+  svg .head-impl { fill: var(--surface); stroke: var(--accent); stroke-width: 1.25; }
+  svg .c-ok { fill: var(--ok-soft); stroke: var(--ok); }
+  svg .c-warn { fill: var(--warn-soft); stroke: var(--warn); }
+  svg .c-err { fill: var(--err-soft); stroke: var(--err); }
+  svg .c-plan { fill: var(--surface); stroke: var(--rule-strong); stroke-dasharray: 3 2; }
+  svg .tc { fill: var(--ink); font-family: var(--f-mono); font-size: 11px; font-weight: 600; }
+
+  /* ---------- lists of merits ---------- */
+  .merits { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+  .merits li { padding: 16px 0; border-top: 1px solid var(--rule); }
+  .merits strong { display: block; font-family: var(--f-display); font-variation-settings: "wdth" 92; font-weight: 700; font-size: 1.02rem; color: var(--ink); margin-bottom: 4px; }
+  .merits span { font-size: 14.5px; color: var(--ink-2); }
+
+  .note {
+    border: 1px solid var(--rule-strong); border-radius: 10px; padding: 14px 18px;
+    background: var(--surface); font-size: 14.5px; color: var(--ink-2); max-width: 78ch;
+  }
+  .note b { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); margin-right: 8px; font-weight: 600; }
+  .note.warn { border-color: var(--warn); background: var(--warn-soft); color: var(--ink); }
+
+  /* ---------- before / after ---------- */
+  .tree { font-family: var(--f-mono); font-size: 13px; line-height: 1.75; margin: 0; padding: 14px 16px; list-style: none; overflow-x: auto; }
+  .tree li { white-space: nowrap; color: var(--ink-2); }
+  .tree .d { color: var(--muted); }
+  .tree .add { color: var(--ok); }
+  .tree .mod { color: var(--warn); }
+  .tree .tag { color: var(--muted); font-size: 11.5px; margin-left: 8px; }
+  .legend-inline { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+  .legend-inline .add { color: var(--ok); }
+  .legend-inline .mod { color: var(--warn); }
+
+  /* ---------- pipeline strip ---------- */
+  .strip { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: var(--f-mono); font-size: 12.5px; }
+  .strip span { padding: 6px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--muted); }
+  .strip span.on { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+  .strip i { color: var(--rule-strong); font-style: normal; }
+
+  /* ---------- bars ---------- */
+  .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .bars li {
+    position: relative;
+    display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr) 34px; gap: 14px; align-items: center;
+    padding: 6px 8px; border-radius: 6px; cursor: default;
+  }
+  .bars li:hover, .bars li:focus-visible { background: var(--accent-soft); }
+  .bars .lab { font-family: var(--f-mono); font-size: 12.5px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bars .track { height: 10px; }
+  .bars .bar { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 3px; }
+  .bars .bar.e2e { background: var(--ink-2); }
+  .bars .val { font-family: var(--f-mono); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .bars li .tip {
+    position: absolute; left: 8px; bottom: calc(100% + 4px); z-index: 2;
+    background: var(--ink); color: var(--paper); font-size: 12.5px; line-height: 1.45;
+    padding: 8px 10px; border-radius: 6px; max-width: 420px; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity .12s, transform .12s;
+  }
+  .bars li:hover .tip, .bars li:focus-visible .tip { opacity: 1; transform: none; }
+
+  .cmd { font-family: var(--f-mono); font-size: 13px; background: var(--ink); color: var(--paper); border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 0; }
+  .cmd .p { color: var(--muted); }
+  .cmd .okk { color: #6FD3A0; }
+
+  .roadmap { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+  .roadmap li { padding: 14px 0; border-top: 1px solid var(--rule); display: grid; gap: 6px; align-content: start; }
+  .roadmap .ph { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+  .roadmap .nm { font-family: var(--f-display); font-weight: 700; font-variation-settings: "wdth" 92; }
+  .roadmap .ds { font-size: 13.5px; color: var(--ink-2); }
+
+  .docs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .docs a { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--ink); }
+  .docs a:hover { border-color: var(--accent); }
+  .docs a .f { font-family: var(--f-mono); font-size: 12.5px; color: var(--accent-ink); }
+  .docs a .d { font-size: 13px; color: var(--muted); }
+
+  footer { padding-block: 40px 64px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1080px) {
+    .shell { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .rail { display: none; }
+  }
+  @media (max-width: 860px) {
+    .cols, .merits { grid-template-columns: minmax(0, 1fr); }
+    .cols-3, .roadmap, .docs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat:nth-child(3) { padding-left: 0; border-left: 0; }
+    .stat:nth-child(n+3) { border-top: 1px solid var(--rule); }
+  }
+  @media (max-width: 560px) {
+    .shell { padding-inline: 16px; }
+    .slide { padding-block: 52px; }
+    .cols-3, .roadmap, .docs { grid-template-columns: minmax(0, 1fr); }
+    .bars li { grid-template-columns: minmax(0, 1fr) 34px; }
+    .bars .track { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route .caret { animation: none; }
+    html { scroll-behavior: auto; }
+    .bars li .tip { transition: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="shell">
+  <nav class="rail" aria-label="Sections">
+    <p class="rail-title">Briefing</p>
+    <ol id="rail">
+      <li><a href="#overview"><span class="n">00</span>Overview</a></li>
+      <li><a href="#brief"><span class="n">01</span>Brief → delivered</a></li>
+      <li><a href="#diff"><span class="n">02</span>Before / after</a></li>
+      <li><a href="#ledger"><span class="n">03</span>Review ledger</a></li>
+      <li><a href="#path"><span class="n">04</span>Request path</a></li>
+      <li><a href="#repository"><span class="n">05</span>Data store &amp; repository</a></li>
+      <li><a href="#validation"><span class="n">06</span>Validation as a type</a></li>
+      <li><a href="#errors"><span class="n">07</span>Errors &amp; logging</a></li>
+      <li><a href="#money"><span class="n">08</span>Money</a></li>
+      <li><a href="#auth"><span class="n">09</span>Security seam</a></li>
+      <li><a href="#evidence"><span class="n">10</span>Evidence</a></li>
+      <li><a href="#next"><span class="n">11</span>What comes next</a></li>
+    </ol>
+    <div class="rail-keys"><kbd>j</kbd> <kbd>k</kbd> next / previous</div>
+  </nav>
+
+  <main>
+    <!-- 00 OVERVIEW -->
+    <section class="slide" id="overview">
+      <p class="hero-kicker">Stellarus · Claims API · Architecture take-home</p>
+      <p class="route" aria-label="GET /claims/:claimId"><span class="verb">GET</span> /claims/<span class="param">:claimId</span><span class="caret" aria-hidden="true"></span></p>
+      <h1>A fifteen-minute endpoint, delivered on the seams a healthcare platform will need.</h1>
+      <p class="lede">The brief asked for one route: 200 on a hit, 404 on a miss, typed and tested. It shipped that, and used the change to put persistence behind a port, move validation into the type system, centralise error logging, fix money, and mark where identity plugs in. Every claim on this page traces to a file and a passing test.</p>
+
+      <div class="stats" role="list">
+        <div class="stat" role="listitem">
+          <div class="v">6<small>/ 6</small></div>
+          <div class="l">brief requirements met, each with a test that proves it</div>
+        </div>
+        <div class="stat" role="listitem">
+          <div class="v">100<small>tests</small></div>
+          <div class="l">83 unit + 17 e2e, up from 2 <span class="mono">(1 + 1)</span></div>
+        </div>
+        <div class="stat" role="listitem">
+          <div class="v">1<small>line</small></div>
+          <div class="l">in <span class="mono">AppModule</span> to swap the data store for a real database</div>
+        </div>
+        <div class="stat" role="listitem">
+          <div class="v">0<small>deps</small></div>
+          <div class="l">added for validation. Runtime additions: <span class="mono">winston</span>, <span class="mono">nest-winston</span></div>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <span><strong>Stack</strong> NestJS 11 · TypeScript 5.9 strict · Jest 30</span>
+        <span><strong>Verified</strong> 2026-09-24 on Node 24.21.0</span>
+        <span><strong>Baseline</strong> <a href="https://github.com/stellarus-interview-lab/ai-assisted-coding-interview">stellarus-interview-lab/ai-assisted-coding-interview</a></span>
+      </div>
+    </section>
+
+    <!-- 01 BRIEF -->
+    <section class="slide" id="brief">
+      <p class="eyebrow"><span class="n">01</span>Brief → delivered</p>
+      <h2>Every requirement maps to code and to a test that fails if it regresses.</h2>
+      <p class="lede">The brief is the acceptance contract. The rows below are the audit trail.</p>
+      <div class="stack">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>#</th><th>Requirement</th><th>How it is met</th><th>Proof</th></tr></thead>
+            <tbody>
+              <tr><td class="num">1</td><td>Return the matching claim</td><td><code>@Get(':claimId')</code> → <code>ClaimsService.findById</code> → <code>ClaimsRepository</code> port</td><td>e2e: <span class="status s2">200</span> for each seed id, exact body</td></tr>
+              <tr><td class="num">2</td><td><span class="status s4">404</span> when it does not exist</td><td>Service resolves <code>undefined</code>; the controller maps it to <code>NotFoundException</code></td><td>unit + e2e: <span class="status s4">404</span> body and a <code>warn</code> log line</td></tr>
+              <tr><td class="num">3</td><td>Appropriate TypeScript types</td><td>Branded <code>ClaimId</code>, <code>Promise&lt;Claim | undefined&gt;</code>, <code>readonly Claim[]</code>, <code>Money</code></td><td><code>strict</code> build; type guard specs</td></tr>
+              <tr><td class="num">4</td><td>At least one automated test</td><td>98 new tests across 8 unit suites and the e2e suite</td><td>Suite inventory, §10</td></tr>
+              <tr><td class="num">5</td><td>Run tests and build</td><td>Build, lint, unit and e2e run green</td><td>Command log, §10</td></tr>
+              <tr><td class="num">6</td><td>Explain what the AI generated and what changed</td><td>Review written first, constraints stated in <a href="prompt.md">prompt.md</a>, one brief per change</td><td><a href="architecture-review.md">architecture-review.md</a> and fix briefs</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note"><b>Constraint honoured</b>"Do not add new dependencies unless necessary." Validation uses a 14-line pipe instead of <code>class-validator</code>; one path parameter does not justify two libraries. The only runtime additions are <code>winston</code> and <code>nest-winston</code>, which the logging requirement named. <code>@eslint/js</code> and <code>typescript-eslint</code> are dev-only and were required to make <code>npm run lint</code> run at all.</div>
+      </div>
+    </section>
+
+    <!-- 02 BEFORE / AFTER -->
+    <section class="slide" id="diff">
+      <p class="eyebrow"><span class="n">02</span>Before / after</p>
+      <h2>Production code grew fivefold. Test code grew elevenfold.</h2>
+      <p class="lede">Baseline is the upstream repository. The test-to-code ratio went from under 1:1 to almost 2:1, and most of the new tests exercise alternate flows and hostile input.</p>
+      <div class="stack">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Measure</th><th class="num">Before</th><th class="num">After</th><th>What changed</th></tr></thead>
+            <tbody>
+              <tr><td>Production lines (<span class="mono">src/</span>, excl. specs)</td><td class="num">55</td><td class="num">305</td><td>12 source files, up from 5</td></tr>
+              <tr><td>Test lines (unit + e2e)</td><td class="num">49</td><td class="num">567</td><td>Edge cases, failure paths, log assertions</td></tr>
+              <tr><td>Tests</td><td class="num">2</td><td class="num">100</td><td>Both originals still pass</td></tr>
+              <tr><td>Routes</td><td class="num">1</td><td class="num">2</td><td><code>GET /claims/:claimId</code></td></tr>
+              <tr><td>Working <span class="mono">npm run lint</span></td><td class="num">no</td><td class="num">yes</td><td>ESLint 9 flat config, check and fix split</td></tr>
+              <tr><td>Working <span class="mono">npm run test:e2e</span></td><td class="num">no</td><td class="num">yes</td><td><code>esModuleInterop</code>; supertest default import was <code>undefined</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cols">
+          <div class="code">
+            <div class="code-head"><span class="file">upstream</span><span>6 files in src/, 1 e2e</span></div>
+            <ul class="tree">
+              <li><span class="d">src/</span></li>
+              <li>&nbsp;&nbsp;app.module.ts</li>
+              <li>&nbsp;&nbsp;main.ts</li>
+              <li>&nbsp;&nbsp;<span class="d">claims/</span></li>
+              <li>&nbsp;&nbsp;&nbsp;&nbsp;claim.ts</li>
+              <li>&nbsp;&nbsp;&nbsp;&nbsp;claims.controller.ts</li>
+              <li>&nbsp;&nbsp;&nbsp;&nbsp;claims.controller.spec.ts</li>
+              <li>&nbsp;&nbsp;&nbsp;&nbsp;claims.service.ts <span class="tag">owns the data</span></li>
+              <li><span class="d">test/</span></li>
+              <li>&nbsp;&nbsp;app.e2e-spec.ts <span class="tag">failed to run</span></li>
+            </ul>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="file">delivered</span><span class="legend-inline"><span class="add">+ new</span><span class="mod">~ changed</span></span></div>
+            <ul class="tree">
+              <li><span class="d">src/</span></li>
+              <li><span class="mod">~</span> app.module.ts <span class="tag">port binding, filter, logger</span></li>
+              <li><span class="mod">~</span> main.ts <span class="tag">Winston logger, bootstrap().catch</span></li>
+              <li><span class="d">&nbsp;&nbsp;auth/</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;auth.guard.ts <span class="tag">+ spec</span></li>
+              <li><span class="d">&nbsp;&nbsp;claims/</span></li>
+              <li><span class="mod">~</span> &nbsp;&nbsp;claim.ts <span class="tag">Money</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;claim-id.ts <span class="tag">+ spec</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;claims.repository.ts <span class="tag">port</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;mock-data-store.ts <span class="tag">adapter + spec</span></li>
+              <li><span class="mod">~</span> &nbsp;&nbsp;claims.service.ts <span class="tag">+ new spec</span></li>
+              <li><span class="mod">~</span> &nbsp;&nbsp;claims.controller.ts <span class="tag">+ spec</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;parse-claim-id.pipe.ts <span class="tag">+ spec</span></li>
+              <li><span class="d">&nbsp;&nbsp;logging/</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;all-exceptions.filter.ts <span class="tag">+ spec</span></li>
+              <li><span class="add">+</span> &nbsp;&nbsp;winston.config.ts <span class="tag">+ spec</span></li>
+              <li><span class="mod">~</span> test/app.e2e-spec.ts <span class="tag">17 tests</span></li>
+              <li><span class="add">+</span> eslint.config.mjs · .gitignore · .nvmrc · package-lock.json</li>
+              <li><span class="mod">~</span> tsconfig.json · package.json</li>
+              <li><span class="add">+</span> docs/ <span class="tag">review, C4, setup, briefs</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 LEDGER -->
+    <section class="slide" id="ledger">
+      <p class="eyebrow"><span class="n">03</span>Review ledger</p>
+      <h2>Review first, then change. Ten findings, tracked to a status.</h2>
+      <p class="lede">The architecture review ran before any code was written and marked every unexecuted claim as unverified. Finding #2 was a prediction from config; running the suite confirmed it. What is still open is listed as open.</p>
+      <div class="stack">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>#</th><th>Finding</th><th>Severity</th><th>Status</th><th>Where</th></tr></thead>
+            <tbody>
+              <tr><td class="num">1</td><td>No developer setup, architecture or API contract</td><td>High</td><td><span class="chip warn">Partial</span></td><td>Setup guide, C4 and docs index added. Root README still to link them</td></tr>
+              <tr><td class="num">2</td><td>e2e broken: supertest import without <code>esModuleInterop</code></td><td>High</td><td><span class="chip ok">Fixed</span></td><td>Confirmed by running, then fixed in <code>tsconfig.json</code></td></tr>
+              <tr><td class="num">3</td><td><code>npm run lint</code> cannot run; also rewrites files</td><td>Medium</td><td><span class="chip ok">Fixed</span></td><td><a href="eslint.md">eslint.md</a></td></tr>
+              <tr><td class="num">4</td><td>No <code>.gitignore</code> / <code>.dockerignore</code></td><td>Medium</td><td><span class="chip warn">Partial</span></td><td><code>.gitignore</code> added; <code>.dockerignore</code> open</td></tr>
+              <tr><td class="num">5</td><td>No authN / authZ, audit or PHI controls</td><td>Critical (prod)</td><td><span class="chip seam">Seam placed</span></td><td><a href="auth-guards.md">auth-guards.md</a></td></tr>
+              <tr><td class="num">6</td><td>Money modelled as floating point</td><td>Medium</td><td><span class="chip ok">Fixed</span></td><td><a href="fix-06-money-modelling.md">fix-06</a></td></tr>
+              <tr><td class="num">7</td><td><code>findAll()</code> leaks the internal mutable array</td><td>Low</td><td><span class="chip ok">Fixed</span></td><td><a href="fix-07-repository-pattern.md">fix-07</a></td></tr>
+              <tr><td class="num">8</td><td>No persistence abstraction; the service is the store</td><td>Medium</td><td><span class="chip ok">Fixed</span></td><td><a href="fix-07-repository-pattern.md">fix-07</a>, §05 below</td></tr>
+              <tr><td class="num">9</td><td>Dockerfile: <code>npm install</code>, no healthcheck</td><td>Low–Medium</td><td><span class="chip open">Open</span></td><td>Roadmap phase 0</td></tr>
+              <tr><td class="num">10</td><td>Unhandled <code>bootstrap()</code> rejection; no shutdown hooks</td><td>Low</td><td><span class="chip warn">Partial</span></td><td>Startup failure logged, exit code 1. Shutdown hooks open</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 REQUEST PATH -->
+    <section class="slide" id="path">
+      <p class="eyebrow"><span class="n">04</span>Request path</p>
+      <h2>Each layer owns one decision, and each failure has exactly one exit.</h2>
+      <p class="lede">Nest's request pipeline already defines where authentication, validation, orchestration and persistence belong. The implementation uses those slots as designed instead of doing everything in the handler.</p>
+      <div class="stack">
+        <figure class="figure" style="margin:0">
+          <svg viewBox="0 0 1000 318" role="img" aria-labelledby="pathTitle pathDesc">
+            <title id="pathTitle">GET /claims/:claimId request path</title>
+            <desc id="pathDesc">Request flows through AuthGuard, ParseClaimIdPipe, ClaimsController, ClaimsService and the ClaimsRepository port, implemented by MockDataStore. Guard failures are planned as 401 or 403, the pipe returns 400, the controller returns 404, the service re-check returns 400, and repository failures become 500. All exceptions route to AllExceptionsFilter, which logs through Winston.</desc>
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="ah-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-ok" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="ah-x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head-x" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="ah-impl" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path class="head-impl" d="M1,1 L11,6 L1,11 z"/></marker>
+            </defs>
+
+            <!-- 200 return path -->
+            <path class="edge-ok" d="M439,58 V22 H10" marker-end="url(#ah-ok)"/>
+            <text class="tc" x="16" y="16">200 · Claim JSON</text>
+
+            <!-- inbound -->
+            <text class="tg" x="4" y="84">GET</text>
+            <path class="edge" d="M4,92 H48" marker-end="url(#ah)"/>
+
+            <!-- nodes -->
+            <rect class="box" x="50" y="58" width="120" height="58" rx="7"/>
+            <text class="tn" x="110" y="82" text-anchor="middle">AuthGuard</text>
+            <text class="ts" x="110" y="100" text-anchor="middle">identity seam</text>
+
+            <rect class="box" x="192" y="58" width="150" height="58" rx="7"/>
+            <text class="tn" x="267" y="82" text-anchor="middle">ParseClaimIdPipe</text>
+            <text class="ts" x="267" y="100" text-anchor="middle">string → ClaimId</text>
+
+            <rect class="box" x="364" y="58" width="150" height="58" rx="7"/>
+            <text class="tn" x="439" y="82" text-anchor="middle">ClaimsController</text>
+            <text class="ts" x="439" y="100" text-anchor="middle">undefined → 404</text>
+
+            <rect class="box" x="536" y="58" width="130" height="58" rx="7"/>
+            <text class="tn" x="601" y="82" text-anchor="middle">ClaimsService</text>
+            <text class="ts" x="601" y="100" text-anchor="middle">re-checks the id</text>
+
+            <rect class="box-port" x="688" y="58" width="150" height="58" rx="7"/>
+            <text class="ta" x="763" y="50" text-anchor="middle">«port»</text>
+            <text class="tn" x="763" y="82" text-anchor="middle">ClaimsRepository</text>
+            <text class="ts" x="763" y="100" text-anchor="middle">async contract</text>
+
+            <rect class="box" x="866" y="58" width="130" height="58" rx="7"/>
+            <text class="tn" x="931" y="82" text-anchor="middle">MockDataStore</text>
+            <text class="ts" x="931" y="100" text-anchor="middle">adapter · deep copies</text>
+
+            <path class="edge" d="M170,87 H190" marker-end="url(#ah)"/>
+            <path class="edge" d="M342,87 H362" marker-end="url(#ah)"/>
+            <path class="edge" d="M514,87 H534" marker-end="url(#ah)"/>
+            <path class="edge" d="M666,87 H686" marker-end="url(#ah)"/>
+            <path class="edge-impl" d="M866,87 H840" marker-end="url(#ah-impl)"/>
+
+            <!-- exception exits -->
+            <path class="edge-x" d="M110,116 V206" marker-end="url(#ah-x)"/>
+            <path class="edge-x" d="M267,116 V206" marker-end="url(#ah-x)"/>
+            <path class="edge-x" d="M439,116 V206" marker-end="url(#ah-x)"/>
+            <path class="edge-x" d="M601,116 V206" marker-end="url(#ah-x)"/>
+            <path class="edge-x" d="M763,116 V206" marker-end="url(#ah-x)"/>
+
+            <rect class="c-plan" x="70" y="146" width="80" height="22" rx="11"/>
+            <text class="tc" x="110" y="161" text-anchor="middle">401 / 403</text>
+            <text class="ts" x="110" y="184" text-anchor="middle">planned</text>
+
+            <rect class="c-warn" x="245" y="146" width="44" height="22" rx="11"/>
+            <text class="tc" x="267" y="161" text-anchor="middle">400</text>
+            <text class="ts" x="267" y="184" text-anchor="middle">malformed id</text>
+
+            <rect class="c-warn" x="417" y="146" width="44" height="22" rx="11"/>
+            <text class="tc" x="439" y="161" text-anchor="middle">404</text>
+            <text class="ts" x="439" y="184" text-anchor="middle">well-formed, unknown</text>
+
+            <rect class="c-warn" x="579" y="146" width="44" height="22" rx="11"/>
+            <text class="tc" x="601" y="161" text-anchor="middle">400</text>
+            <text class="ts" x="601" y="184" text-anchor="middle">non-HTTP caller</text>
+
+            <rect class="c-err" x="741" y="146" width="44" height="22" rx="11"/>
+            <text class="tc" x="763" y="161" text-anchor="middle">500</text>
+            <text class="ts" x="763" y="184" text-anchor="middle">store rejects</text>
+
+            <!-- filter -->
+            <rect class="box-filter" x="50" y="208" width="788" height="44" rx="7"/>
+            <text class="tn" x="66" y="235">AllExceptionsFilter</text>
+            <text class="ts" x="226" y="235">@Catch() via APP_FILTER · 4xx → warn · 5xx → error + stack · client never sees internals</text>
+
+            <path class="edge" d="M444,252 V274" marker-end="url(#ah)"/>
+            <rect class="box" x="344" y="276" width="200" height="36" rx="7"/>
+            <text class="tn" x="444" y="299" text-anchor="middle">Winston</text>
+            <text class="ts" x="556" y="299">JSON lines in production</text>
+          </svg>
+        </figure>
+
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Request</th><th>Status</th><th>Body</th><th>Logged</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">GET /claims/CLM-1001</td><td><span class="status s2">200</span></td><td>The <code>Claim</code> JSON</td><td>nothing</td></tr>
+              <tr><td class="mono">GET /claims/CLM-9999</td><td><span class="status s4">404</span></td><td><code>Claim CLM-9999 not found</code></td><td><code>warn</code></td></tr>
+              <tr><td class="mono">GET /claims/abc · clm-1001 · CLM-12345678901 · 10 KB · <span style="white-space:nowrap">'; DROP …</span></td><td><span class="status s4">400</span></td><td>Fixed message; the input is never echoed</td><td><code>warn</code></td></tr>
+              <tr><td>Repository rejects</td><td><span class="status s5">500</span></td><td><code>Internal server error</code>, nothing more</td><td><code>error</code> + stack</td></tr>
+              <tr><td>App fails to start (e.g. <code>EADDRINUSE</code>)</td><td class="mono">exit 1</td><td>n/a</td><td><code>error</code> + stack</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 REPOSITORY -->
+    <section class="slide" id="repository">
+      <p class="eyebrow"><span class="n">05</span>Data store &amp; repository</p>
+      <h2>The service stopped owning data. Persistence is now a binding, one line in <span class="mono" style="font-size:.8em;font-weight:500">AppModule</span>.</h2>
+      <p class="lede">Upstream, <code>ClaimsService</code> held the seed array and returned it by reference. Swapping to a database meant rewriting the service and its tests. Now the service depends on a port; the in-memory store is one adapter among the ones the platform will need.</p>
+
+      <div class="stack">
+        <figure class="figure" style="margin:0">
+          <svg viewBox="0 0 780 300" role="img" aria-labelledby="hexTitle hexDesc">
+            <title id="hexTitle">Ports and adapters around the claims module</title>
+            <desc id="hexDesc">Inside the claims module, ClaimsController calls ClaimsService, which depends on the ClaimsRepository port. MockDataStore implements the port and is bound in AppModule today. A Postgres repository and a payer-core read model are illustrative future adapters implementing the same port.</desc>
+            <defs>
+              <marker id="bh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="bh-impl" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path class="head-impl" d="M1,1 L11,6 L1,11 z"/></marker>
+            </defs>
+            <rect class="region" x="10" y="26" width="432" height="258" rx="14"/>
+            <text class="tl" x="28" y="52">claims module · no infrastructure imports</text>
+
+            <rect class="box" x="40" y="76" width="180" height="52" rx="7"/>
+            <text class="tn" x="130" y="100" text-anchor="middle">ClaimsController</text>
+            <text class="ts" x="130" y="117" text-anchor="middle">HTTP adapter</text>
+
+            <rect class="box" x="40" y="196" width="180" height="52" rx="7"/>
+            <text class="tn" x="130" y="220" text-anchor="middle">ClaimsService</text>
+            <text class="ts" x="130" y="237" text-anchor="middle">transport-agnostic</text>
+
+            <path class="edge" d="M130,128 V194" marker-end="url(#bh)"/>
+            <path class="edge" d="M220,222 C290,222 300,160 348,160" marker-end="url(#bh)"/>
+            <text class="ts" x="252" y="236">depends on</text>
+
+            <rect class="box-port" x="350" y="124" width="184" height="72" rx="8"/>
+            <text class="ta" x="442" y="146" text-anchor="middle">«port» abstract class</text>
+            <text class="tn" x="442" y="166" text-anchor="middle">ClaimsRepository</text>
+            <text class="ts" x="442" y="184" text-anchor="middle">also the DI token</text>
+
+            <rect class="box" x="584" y="36" width="190" height="56" rx="7"/>
+            <text class="tn" x="679" y="60" text-anchor="middle">MockDataStore</text>
+            <text class="ts" x="679" y="78" text-anchor="middle">bound in AppModule today</text>
+
+            <rect class="box-ghost" x="584" y="132" width="190" height="56" rx="7"/>
+            <text class="tg" x="679" y="156" text-anchor="middle">PostgresClaimsRepository</text>
+            <text class="ts" x="679" y="174" text-anchor="middle">illustrative · roadmap phase 2</text>
+
+            <rect class="box-ghost" x="584" y="228" width="190" height="56" rx="7"/>
+            <text class="tg" x="679" y="252" text-anchor="middle">PayerCoreReadModel</text>
+            <text class="ts" x="679" y="270" text-anchor="middle">illustrative · roadmap phase 5</text>
+
+            <path class="edge-impl" d="M584,64 C560,64 560,140 536,146" marker-end="url(#bh-impl)"/>
+            <path class="edge-ghost" d="M584,160 H538" marker-end="url(#bh-impl)"/>
+            <path class="edge-ghost" d="M584,256 C560,256 560,180 536,174" marker-end="url(#bh-impl)"/>
+          </svg>
+        </figure>
+
+        <div class="cols">
+          <div class="code">
+            <div class="code-head"><span class="file">claims.service.ts · upstream</span><span>annotations mine</span></div>
+<pre><span class="k">@Injectable</span>()
+<span class="k">export class</span> <span class="t">ClaimsService</span> {
+  <span class="k">private readonly</span> claims: <span class="t">Claim</span>[] = [
+    { claimId: <span class="s">'CLM-1001'</span>, …, amount: 425.5 },
+    <span class="a">// ↑ float money, no currency</span>
+    …
+  ];
+
+  findAll(): <span class="t">Claim</span>[] {
+    <span class="k">return</span> <span class="k">this</span>.claims;
+    <span class="a">// ↑ caller can push, sort, edit shared state</span>
+  }
+}</pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="file">claims.repository.ts · delivered</span><span>the port</span></div>
+<pre><span class="c">/** Port: abstracts claim retrieval and persistence.
+ *  Abstract class doubles as the DI token. */</span>
+<span class="k">export abstract class</span> <span class="t">ClaimsRepository</span> {
+  <span class="k">abstract</span> findAll(): <span class="t">Promise</span>&lt;<span class="k">readonly</span> <span class="t">Claim</span>[]&gt;;
+
+  <span class="c">/** Resolves `undefined` when no claim has this id;
+   *  rejects only on infrastructure failure. */</span>
+  <span class="k">abstract</span> findById(
+    claimId: <span class="t">ClaimId</span>,
+  ): <span class="t">Promise</span>&lt;<span class="t">Claim</span> | <span class="k">undefined</span>&gt;;
+}</pre>
+          </div>
+        </div>
+
+        <div class="cols">
+          <div class="code">
+            <div class="code-head"><span class="file">app.module.ts · delivered</span><span>composition root</span></div>
+<pre>providers: [
+  <span class="t">ClaimsService</span>,
+<span class="hl">  { provide: <span class="t">ClaimsRepository</span>, useClass: <span class="t">MockDataStore</span> },</span>
+  { provide: <span class="t">APP_FILTER</span>, useClass: <span class="t">AllExceptionsFilter</span> },
+],</pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="file">mock-data-store.ts · delivered</span><span>the adapter</span></div>
+<pre><span class="k">const</span> copy = (claim: <span class="t">Claim</span>): <span class="t">Claim</span> =&gt;
+  ({ ...claim, amount: { ...claim.amount } });
+
+<span class="k">async</span> findById(claimId: <span class="t">ClaimId</span>) {
+  <span class="k">const</span> claim = <span class="k">this</span>.claims.find(
+    (c) =&gt; c.claimId === claimId);
+  <span class="k">return</span> claim &amp;&amp; copy(claim);
+}</pre>
+          </div>
+        </div>
+
+        <ul class="merits">
+          <li><strong>Persistence becomes a deployment decision</strong><span>Postgres, a payer-core read model or a cache implements the port and changes one binding. Controller, service and their tests stay untouched.</span></li>
+          <li><strong>Async from day one</strong><span>The port returns <code>Promise</code> even though the mock is synchronous, so a network-backed adapter needs no caller changes. The HTTP response is unchanged.</span></li>
+          <li><strong>Miss semantics are in the contract</strong><span>Resolve <code>undefined</code> for "not found", reject only for infrastructure failure. The 404 / 500 split falls out of that rule with no special cases.</span></li>
+          <li><strong>Type-safe DI without string tokens</strong><span>An abstract class survives compilation, so it serves as the injection token. No <code>@Inject('CLAIMS_REPO')</code>, no token drift.</span></li>
+          <li><strong>Immutability enforced twice</strong><span><code>readonly Claim[]</code> stops mutation at compile time. Deep copies stop it at runtime; a spec mutates a result and asserts the store is unchanged.</span></li>
+          <li><strong>The data layer cannot receive raw input</strong><span><code>findById</code> takes a branded <code>ClaimId</code>, so an unvalidated <code>string</code> does not compile against the port.</span></li>
+          <li><strong>Tests cut at the seam</strong><span>Service specs use <code>jest.Mocked&lt;ClaimsRepository&gt;</code>. The e2e suite resolves the port from the container and forces a rejection to prove the generic 500.</span></li>
+          <li><strong>Aligned with the target architecture</strong><span>The review's ADR candidates are hexagonal boundaries and the payer core as system of record. This port is where that read model attaches.</span></li>
+        </ul>
+
+        <div class="code">
+          <div class="code-head"><span class="file">postgres-claims.repository.ts</span><span>illustrative · not in the repo</span></div>
+<pre><span class="k">@Injectable</span>()
+<span class="k">export class</span> <span class="t">PostgresClaimsRepository</span> <span class="k">implements</span> <span class="t">ClaimsRepository</span> {
+  <span class="k">constructor</span>(<span class="k">private readonly</span> db: <span class="t">Pool</span>) {}
+
+  <span class="k">async</span> findById(id: <span class="t">ClaimId</span>): <span class="t">Promise</span>&lt;<span class="t">Claim</span> | <span class="k">undefined</span>&gt; {
+    <span class="k">const</span> { rows } = <span class="k">await this</span>.db.query(
+      <span class="s">'SELECT claim_id, member_id, status, amount_minor, currency FROM claims WHERE claim_id = $1'</span>, [id]);
+    <span class="k">return</span> rows[0] &amp;&amp; toClaim(rows[0]);   <span class="c">// BIGINT minor units map straight to Money</span>
+  }
+  <span class="c">// findAll …</span>
+}
+
+<span class="c">// app.module.ts: the only line that changes</span>
+<span class="hl">{ provide: <span class="t">ClaimsRepository</span>, useClass: <span class="t">PostgresClaimsRepository</span> }</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 VALIDATION -->
+    <section class="slide" id="validation">
+      <p class="eyebrow"><span class="n">06</span>Validation as a type</p>
+      <h2>Invalid input never reaches the store, and the compiler helps enforce it.</h2>
+      <p class="lede">A branded <code>ClaimId</code> can only be produced by the type guard. The pipe produces it at the HTTP boundary; the service checks again for callers that are not HTTP.</p>
+      <div class="stack">
+        <div class="cols">
+          <div class="code">
+            <div class="code-head"><span class="file">claim-id.ts</span><span>zero dependencies</span></div>
+<pre><span class="k">export const</span> CLAIM_ID_PATTERN = <span class="s">/^CLM-\d{1,10}$/</span>;
+
+<span class="k">export type</span> <span class="t">ClaimId</span> = <span class="t">string</span> &amp; {
+  <span class="k">readonly</span> __brand: <span class="s">'ClaimId'</span>;
+};
+
+<span class="k">export function</span> isClaimId(
+  value: <span class="t">unknown</span>,
+): value <span class="k">is</span> <span class="t">ClaimId</span> {
+  <span class="k">return typeof</span> value === <span class="s">'string'</span>
+    &amp;&amp; CLAIM_ID_PATTERN.test(value);
+}</pre>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="file">parse-claim-id.pipe.ts</span><span>HTTP boundary</span></div>
+<pre><span class="k">@Injectable</span>()
+<span class="k">export class</span> <span class="t">ParseClaimIdPipe</span>
+  <span class="k">implements</span> <span class="t">PipeTransform</span>&lt;<span class="t">unknown</span>, <span class="t">ClaimId</span>&gt; {
+  transform(value: <span class="t">unknown</span>): <span class="t">ClaimId</span> {
+    <span class="k">if</span> (!isClaimId(value)) {
+      <span class="c">// Deliberately does not echo the input:
+      // it is untrusted and may be oversize.</span>
+      <span class="k">throw new</span> <span class="t">BadRequestException</span>(
+        CLAIM_ID_FORMAT_MESSAGE);
+    }
+    <span class="k">return</span> value;
+  }
+}</pre>
+          </div>
+        </div>
+        <div class="cols-3">
+          <div><h3>Twice, on purpose</h3><p class="body" style="margin:0">The pipe is the HTTP contract. The service re-check covers type casts, plain-JS callers and future entry points such as queue consumers and jobs. A spec asserts the repository is <em>not called</em> for bad ids.</p></div>
+          <div><h3>Strict, not forgiving</h3><p class="body" style="margin:0">No trimming, no upper-casing. Normalising would make two URLs return one resource and hide client bugs. <code>clm-1001</code> is a 400.</p></div>
+          <div><h3>Bounded</h3><p class="body" style="margin:0"><code>\d{1,10}</code> caps length in the pattern itself, so a 10 KB id is rejected without a lookup. 26 specs cover bounds, whitespace, non-ASCII digits, SQL and path-traversal strings, and non-string values.</p></div>
+        </div>
+        <div class="note"><b>400 vs 404</b>A malformed id is the client's error (400). A well-formed unknown id is a miss (404). Once authorization lands, a claim the caller may not see also returns 404, so responses do not reveal which ids exist.</div>
+      </div>
+    </section>
+
+    <!-- 07 ERRORS -->
+    <section class="slide" id="errors">
+      <p class="eyebrow"><span class="n">07</span>Errors &amp; logging</p>
+      <h2>Handlers throw. One filter logs. Clients never see internals.</h2>
+      <p class="lede">Logging in controllers and services produces duplicate lines in inconsistent shapes. A single global filter gives one log shape, one severity policy and one place to change either.</p>
+      <div class="stack">
+        <div class="cols">
+          <div class="code">
+            <div class="code-head"><span class="file">all-exceptions.filter.ts</span><span>excerpt</span></div>
+<pre><span class="k">const</span> entry = {
+  message, error, statusCode,
+  method: httpAdapter.getRequestMethod(request),
+  path:   httpAdapter.getRequestUrl(request),
+};
+
+<span class="k">if</span> (statusCode &gt;= 500) {
+  <span class="k">this</span>.logger.error(entry, stack, <span class="t">AllExceptionsFilter</span>.name);
+} <span class="k">else</span> {
+  <span class="k">this</span>.logger.warn(entry, <span class="t">AllExceptionsFilter</span>.name);
+}
+
+<span class="c">// A streaming handler may already have replied.</span>
+<span class="k">if</span> (!httpAdapter.isHeadersSent(response)) {
+  httpAdapter.reply(response, body, statusCode);
+}</pre>
+          </div>
+          <div class="tbl" style="align-self:start">
+            <table>
+              <thead><tr><th>Decision</th><th>Why it matters</th></tr></thead>
+              <tbody>
+                <tr><td>4xx → <code>warn</code>, 5xx → <code>error</code> + stack</td><td>Client errors stay visible for abuse detection without paging anyone</td></tr>
+                <tr><td>Unknown errors reply with a generic 500</td><td>Messages and stacks go to logs only</td></tr>
+                <tr><td>Registered via <code>APP_FILTER</code></td><td>Applies in e2e tests as in production, so log assertions are real</td></tr>
+                <tr><td>JSON lines when <code>NODE_ENV=production</code></td><td>Ready for a log shipper; pretty output locally</td></tr>
+                <tr><td>Adds the <code>fatal</code> level</td><td>Nest emits it and Winston's npm levels lack it, so fatal lines would be silently dropped</td></tr>
+                <tr><td>Validated <code>LOG_LEVEL</code></td><td>Unknown values fall back to <code>info</code> instead of failing</td></tr>
+                <tr><td><code>bootstrap().catch</code></td><td>Startup failures are logged through Winston and exit with code 1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="note warn"><b>Known gap</b>The log line includes the request path and the 404 message, and both contain the claim id. Claim numbers may be identifiers under HIPAA. Before real data arrives: log the route pattern or a hashed id, move the raw id to an audit trail, and add a correlation id per request.</div>
+      </div>
+    </section>
+
+    <!-- 08 MONEY -->
+    <section class="slide" id="money">
+      <p class="eyebrow"><span class="n">08</span>Money</p>
+      <h2>Amounts are integer cents with a currency, before anything sums them.</h2>
+      <p class="lede">Binary floats cannot represent most decimal fractions, so totals drift. In a claims domain that drift reaches adjudication and member statements. Fixing it now costs three seed rows; fixing it after persistence costs a migration.</p>
+      <div class="stack">
+        <div class="cols">
+          <div class="tbl" style="align-self:start">
+            <table>
+              <thead><tr><th>Claim</th><th class="num">Before</th><th>After</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">CLM-1001</td><td class="num">425.5</td><td class="mono">{ amountMinor: 42550, currency: 'USD' }</td></tr>
+                <tr><td class="mono">CLM-1002</td><td class="num">810.25</td><td class="mono">{ amountMinor: 81025, currency: 'USD' }</td></tr>
+                <tr><td class="mono">CLM-1003</td><td class="num">119.99</td><td class="mono">{ amountMinor: 11999, currency: 'USD' }</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="file">claim.ts</span><span>domain type</span></div>
+<pre><span class="k">export interface</span> <span class="t">Money</span> {
+  <span class="c">/** Integer minor units (cents); never fractional. */</span>
+  amountMinor: <span class="t">number</span>;
+  <span class="c">/** ISO 4217 currency code. */</span>
+  currency: <span class="s">'USD'</span>;
+}
+
+<span class="k">export interface</span> <span class="t">Claim</span> {
+  claimId: <span class="t">string</span>;
+  memberId: <span class="t">string</span>;
+  status: <span class="s">'PAID'</span> | <span class="s">'PENDING'</span> | <span class="s">'DENIED'</span>;
+  amount: <span class="t">Money</span>;
+}</pre>
+          </div>
+        </div>
+        <div class="note"><b>Trade-off stated</b>This is a breaking wire change for <code>GET /claims</code>: <code>amount</code> is now an object. No consumer exists yet, which is why now is the time. Formatting happens at the edge. Persist as <code>BIGINT</code> plus a currency column; move to <code>bigint</code> or a decimal type if values could pass <code>Number.MAX_SAFE_INTEGER</code>.</div>
+      </div>
+    </section>
+
+    <!-- 09 AUTH -->
+    <section class="slide" id="auth">
+      <p class="eyebrow"><span class="n">09</span>Security seam</p>
+      <h2>Identity plugs into a guard that already runs on every claims route.</h2>
+      <p class="lede">There is no identity provider in the exercise, so nothing is authenticated. The change puts the seam where Nest expects it and marks each check with <code>TODO(auth)</code>, so the eventual implementation is a fill-in, not a refactor.</p>
+      <div class="stack">
+        <div class="strip" aria-label="Nest request pipeline order">
+          <span>Middleware</span><i>→</i><span class="on">Guards</span><i>→</i><span>Interceptors</span><i>→</i><span class="on">Pipes</span><i>→</i><span class="on">Handler</span><i>→</i><span>Interceptors</span><i>→</i><span class="on">Exception filters</span>
+        </div>
+        <p class="caption" style="margin-top:-18px">Highlighted: slots this change uses. Guards run before pipes, so an unauthenticated request is rejected before validation or data access.</p>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Layer</th><th>Question</th><th>Where</th><th>Failure</th></tr></thead>
+            <tbody>
+              <tr><td>Authentication</td><td>Who is calling?</td><td><code>AuthGuard</code>: verify the JWT against the IdP's JWKS, set <code>request.user</code></td><td><span class="status s4">401</span></td></tr>
+              <tr><td>Role / scope</td><td>May this kind of caller use this route?</td><td><code>RolesGuard</code> reading <code>@Roles()</code> via <code>Reflector</code></td><td><span class="status s4">403</span></td></tr>
+              <tr><td>Object level</td><td>May <em>this</em> caller see <em>this</em> claim?</td><td>Controller or service, after the claim loads; a guard cannot see it</td><td><span class="status s4">404</span>, same as missing</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cols">
+          <ul class="merits" style="grid-template-columns:minmax(0,1fr)">
+            <li><strong>Guards, not interceptors</strong><span>Interceptors run after guards and fit audit logging of PHI reads. Access decisions belong earlier.</span></li>
+            <li><strong>Pinned by tests</strong><span>A controller spec reads <code>GUARDS_METADATA</code> and fails if <code>@UseGuards(AuthGuard)</code> is removed.</span></li>
+            <li><strong>BOLA / IDOR named at the call site</strong><span>The object-level check is the top OWASP API risk, and its TODO sits exactly where the claim is loaded.</span></li>
+          </ul>
+          <div class="note warn" style="align-self:start"><b>Fails open</b>The placeholder guard returns <code>true</code>. That is acceptable only because the exercise serves fictitious data. It must be replaced before anything real is served, and moved to a global <code>APP_GUARD</code> with a <code>@Public()</code> opt-out once there is a second controller.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 EVIDENCE -->
+    <section class="slide" id="evidence">
+      <p class="eyebrow"><span class="n">10</span>Evidence</p>
+      <h2>A hundred tests, weighted toward the input boundary and the failure paths.</h2>
+      <p class="lede">The largest suite guards the claim id, the only untrusted input. Next is the e2e suite, which asserts status codes, bodies and the log calls themselves through a mocked Winston provider.</p>
+      <div class="stack">
+        <div>
+          <h3>Tests per suite</h3>
+          <ul class="bars" aria-label="Tests per suite, 100 total">
+            <li tabindex="0"><span class="lab">claim-id.spec.ts</span><span class="track"><span class="bar" style="width:100%;display:block"></span></span><span class="val">26</span><span class="tip">Length bounds; rejects empty, case, whitespace, newline, non-ASCII digits, 11 digits, 10 KB, SQL and path traversal, non-strings</span></li>
+            <li tabindex="0"><span class="lab">app.e2e-spec.ts</span><span class="track"><span class="bar e2e" style="width:65.4%;display:block"></span></span><span class="val">17</span><span class="tip">200 per seed id with exact body; 404 + warn; nine malformed ids → 400 with the repository not called; forced repository failure → generic 500 + error log</span></li>
+            <li tabindex="0"><span class="lab">winston.config.spec.ts</span><span class="track"><span class="bar" style="width:50%;display:block"></span></span><span class="val">13</span><span class="tip">LOG_LEVEL default, normalisation and fallback; production output is parseable JSON with timestamp and stack; level filtering</span></li>
+            <li tabindex="0"><span class="lab">claims.service.spec.ts</span><span class="track"><span class="bar" style="width:42.3%;display:block"></span></span><span class="val">11</span><span class="tip">Delegation; miss → undefined; invalid ids rejected without calling the repository; repository failure propagates unchanged</span></li>
+            <li tabindex="0"><span class="lab">all-exceptions.filter.spec.ts</span><span class="track"><span class="bar" style="width:34.6%;display:block"></span></span><span class="val">9</span><span class="tip">4xx → warn; 5xx → error + stack; unknown Error hidden from client; thrown non-Errors; headers already sent</span></li>
+            <li tabindex="0"><span class="lab">parse-claim-id.pipe.spec.ts</span><span class="track"><span class="bar" style="width:34.6%;display:block"></span></span><span class="val">9</span><span class="tip">Pass-through; 400 for bad values; error body never echoes hostile input</span></li>
+            <li tabindex="0"><span class="lab">mock-data-store.spec.ts</span><span class="track"><span class="bar" style="width:30.8%;display:block"></span></span><span class="val">8</span><span class="tip">Every seed id; full shape; miss; no prefix or substring match; results are deep copies</span></li>
+            <li tabindex="0"><span class="lab">claims.controller.spec.ts</span><span class="track"><span class="bar" style="width:23.1%;display:block"></span></span><span class="val">6</span><span class="tip">Found; NotFoundException with message; repository failure propagates; guard metadata present</span></li>
+            <li tabindex="0"><span class="lab">auth.guard.spec.ts</span><span class="track"><span class="bar" style="width:3.8%;display:block"></span></span><span class="val">1</span><span class="tip">Pins the placeholder's pass-through behaviour until a real guard replaces it</span></li>
+          </ul>
+          <p class="caption">Blue: unit suites (83). Grey: e2e (17). Hover or focus a row for what it covers.</p>
+        </div>
+        <pre class="cmd" aria-label="Verification commands"><span class="p">$</span> npm run build &amp;&amp; npm run lint &amp;&amp; npm test &amp;&amp; npm run test:e2e
+<span class="okk">✓</span> nest build
+<span class="okk">✓</span> eslint "{src,test}/**/*.ts"
+<span class="okk">✓</span> Test Suites: 8 passed · Tests: 83 passed
+<span class="okk">✓</span> Test Suites: 1 passed · Tests: 17 passed</pre>
+        <p class="caption" style="margin-top:-18px">Run 2026-09-24, Node 24.21.0.</p>
+      </div>
+    </section>
+
+    <!-- 11 NEXT -->
+    <section class="slide" id="next">
+      <p class="eyebrow"><span class="n">11</span>What comes next</p>
+      <h2>Deliberately not built, and the order to build it in.</h2>
+      <p class="lede">An architecture exercise is judged as much on what was left out as on what went in. Each deferral below has a reason and a phase.</p>
+      <div class="stack">
+        <ol class="roadmap">
+          <li><span class="ph">Phase 0 · hygiene</span><span class="nm">Mostly done</span><span class="ds">Remaining: <code>.dockerignore</code>, <code>npm ci</code> in Docker, <code>engines</code>, link docs from the root README.</span></li>
+          <li><span class="ph">Phase 1 · contract</span><span class="nm">API you can integrate against</span><span class="ds">Response DTOs, OpenAPI, <code>/v1</code>, RFC 9457 <code>problem+json</code>, <code>/health</code>. <code>ValidationPipe</code> arrives with the first request body.</span></li>
+          <li><span class="ph">Phase 2 · persistence</span><span class="nm">Port done, adapter next</span><span class="ds">Postgres adapter behind <code>ClaimsRepository</code>, migrations, <code>BIGINT</code> money, Testcontainers integration tests.</span></li>
+          <li><span class="ph">Phase 3 · security</span><span class="nm">Safe for PHI</span><span class="ds">OIDC at gateway and guard, <code>RolesGuard</code>, object-level policy, audit interceptor, PHI-safe logs.</span></li>
+          <li><span class="ph">Phase 4 · delivery</span><span class="nm">Repeatable and observable</span><span class="ds">CI (build, lint, test, audit), image scan and SBOM, OpenTelemetry, SLOs, graceful shutdown.</span></li>
+          <li><span class="ph">Phase 5 · integration</span><span class="nm">Platform fit</span><span class="ds">Event-fed read model from the payer core, which remains the system of record. Attaches at the same port.</span></li>
+        </ol>
+
+        <div>
+          <h3>Working method with an AI assistant</h3>
+          <ul class="merits">
+            <li><strong>Review before code</strong><span>The assistant produced the architecture review and C4 set first. Claims it could not execute were labelled unverified rather than asserted.</span></li>
+            <li><strong>Constraints set up front</strong><span><a href="prompt.md">prompt.md</a> fixed the non-negotiables: validate before data operations, cover alternate flows and edge cases, log errors through Winston.</span></li>
+            <li><strong>Verified by execution</strong><span>The e2e defect predicted from config was confirmed by running the suite, then fixed. Counts on this page come from the run above.</span></li>
+            <li><strong>One brief per change</strong><span>Each fix has a short doc stating problem, change, trade-offs and verification, so a reviewer can audit decisions without reading the diff.</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Reference documents</h3>
+          <div class="docs">
+            <a href="architecture-review.md"><span class="f">architecture-review.md</span><span class="d">Findings, security posture, roadmap, ADR candidates</span></a>
+            <a href="c4-architecture.md"><span class="f">c4-architecture.md</span><span class="d">C4 levels 1–4, class and sequence diagrams</span></a>
+            <a href="reference-implementation.md"><span class="f">reference-implementation.md</span><span class="d">The endpoint as built, test inventory</span></a>
+            <a href="fix-07-repository-pattern.md"><span class="f">fix-07-repository-pattern.md</span><span class="d">Port, adapter, swap procedure</span></a>
+            <a href="fix-06-money-modelling.md"><span class="f">fix-06-money-modelling.md</span><span class="d">Integer minor units and currency</span></a>
+            <a href="auth-guards.md"><span class="f">auth-guards.md</span><span class="d">Guard placement and the three layers of check</span></a>
+            <a href="eslint.md"><span class="f">eslint.md</span><span class="d">Flat config, check vs fix</span></a>
+            <a href="developer-setup.md"><span class="f">developer-setup.md</span><span class="d">Install, run, test, Docker</span></a>
+            <a href="prompt.md"><span class="f">prompt.md</span><span class="d">The directives given to the assistant</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>All claim data is fictitious. Code excerpts are trimmed from the files named in each header; the Postgres adapter is illustrative and not part of the repository.</footer>
+  </main>
+</div>
+
+<script>
+  (function () {
+    var ids = ['overview', 'brief', 'diff', 'ledger', 'path', 'repository', 'validation', 'errors', 'money', 'auth', 'evidence', 'next'];
+    var sections = ids.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+    var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+
+    function setActive(id) {
+      links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+    }
+    setActive(ids[0]);
+
+    function currentIndex() {
+      var y = window.innerHeight * 0.3;
+      var idx = 0;
+      sections.forEach(function (s, i) { if (s.getBoundingClientRect().top <= y) idx = i; });
+      return idx;
+    }
+
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { setActive(sections[currentIndex()].id); ticking = false; });
+    }, { passive: true });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      var i = currentIndex();
+      if (e.key === 'j') i = Math.min(i + 1, sections.length - 1);
+      else if (e.key === 'k') i = Math.max(i - 1, 0);
+      else return;
+      e.preventDefault();
+      sections[i].scrollIntoView({ block: 'start' });
+    });
+  })();
+</script>
