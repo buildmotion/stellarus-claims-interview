@@ -53,4 +53,4 @@ https://github.com/stellarus-interview-lab/ai-assisted-coding-interview
 
 After this repository is published publicly to GitHub, it can be opened in StackBlitz using:
 
-`https://stackblitz.com/github/<OWNER>/<REPOSITORY>`
+`https://stackblitz.com/github/buildmotion/stellarus-claims-interview`
